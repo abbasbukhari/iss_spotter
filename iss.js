@@ -1,23 +1,27 @@
 // iss.js
-const needle = require("needle");
 
-const fetchMyIP = function(callback) {
-  const url = "https://api.ipify.org?format=json"; // IPify API endpoint
+const needle = require('needle');
 
+// fetchCoordsByIP function
+const fetchCoordsByIP = (ip, callback) => {
+  const url = `https://ipwho.is/${ip}`;
+  
   needle.get(url, (error, response, body) => {
     if (error) {
       callback(error, null);
       return;
     }
-    if (response.statusCode !== 200) {
-      const msg = `Status Code ${response.statusCode} when fetching IP. Response: ${body}`;
+
+    if (body.success === false) {
+      const msg = `Success status was false. Server message says: ${body.message} when fetching for IP ${ip}`;
       callback(Error(msg), null);
       return;
     }
 
-    const ip = body.ip;
-    callback(null, ip); // Pass the IP address as the second argument if all is well
+    const { latitude, longitude } = body;
+    callback(null, { latitude, longitude });
   });
 };
 
-module.exports = { fetchMyIP };
+// Export the functions
+module.exports = { fetchCoordsByIP };
